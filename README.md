@@ -54,6 +54,9 @@ The second one reads the result:
 cat out
 ```
 
+Note that you can use the same pipe for input and output: `./service data data`.
+
+
 ### Service with two dependent inputs
 
 The second example `./service2 context data out` shows a service
@@ -74,7 +77,12 @@ If you want to expose such a service as a network server, just use socat.
 
 For example, to get _data_ query from the network for `service2`:
 ```sh
-socat -v -u TCP4-LISTEN:8423,reuseaddr PIPE:./data
+socat -v -u TCP-LISTEN:8423,reuseaddr PIPE:./data
+```
+
+You can test it by sending something on the connection:
+```sh
+echo "data" > /dev/tcp/127.0.0.1/8423
 ```
 
 Conversely, to send automatically back the answer to some server:
@@ -82,9 +90,17 @@ Conversely, to send automatically back the answer to some server:
 socat -v -u PIPE:./out TCP2:8424:host
 ```
 
+Be aware that `socat` will terminate as soon as it receives the end of the message.
+Thus, if you want to establish a permanent gate, you will have to automatically restart it:
+```sh
+while true; do socat TCP-LISTEN:8478,reuseaddr PIPE:/./data || break; done
+```
+
+
 Author & license
 ----------------
 
 Author: nojhan@nojhan.net
+
 License: AGPLv3
 
