@@ -25,6 +25,33 @@ Be warned that this is not secure, though, you should only use this for testing
 purpose in a secure local network.
 
 
+Principle
+---------
+
+The theoretical principle can be represented by this UML sequence diagram:
+```
+          Named pipes
+         ┌─────┴─────┐
+┌──────┐ ┌───┐   ┌───┐ ┌───────┐
+│Client│ │OUT│   │IN │ │Service│
+└───┬──┘ └─┬─┘   └─┬─┘ └───┬───┘
+    │      │       │       │
+    │      │       │┌──────╢
+    │      │  block││ wait ║
+    │ask   │       │└─────→║
+    ├─────────────→│       │
+    ╟─────┐│       ├──────→│
+    ║wait ││block  │       ║process
+    ║←────┘│       │       ║
+    │      │←──────────────┤
+    │←─────┤       │   tell│
+    │      │       │       │
+```
+
+Note that the service is started first and is waiting for the input.
+Note also that there are two pipes, here: one for the input and one for the output.
+
+
 Build and run
 -------------
 
