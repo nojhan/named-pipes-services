@@ -18,7 +18,6 @@ protected:
     std::string _file_current_context;
     std::string _file_data;
     std::string _out;
-    const unsigned int _sleep;
     std::string _current_context;
 
     bool has_current_context()
@@ -38,14 +37,12 @@ public:
     Service(
         std::string context,
         std::string data,
-        std::string out,
-        unsigned int sleep = 100
+        std::string out
     ) :
         _has_current_context(false),
         _file_current_context(context),
         _file_data(data),
-        _out(out),
-        _sleep(sleep)
+        _out(out)
     {}
 
     std::string strip(std::string s)
@@ -74,7 +71,6 @@ public:
                 this->has_current_context(true);
                 std::clog << "\tReceived context: " << _current_context << std::endl;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(_sleep));
         }
     }
 
@@ -109,7 +105,6 @@ public:
                     std::clog << "\tdone" << std::endl;
                 } // if not has_error
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(_sleep));
         } // while true
     }
 };
@@ -137,7 +132,7 @@ int main(int argc, char** argv)
 
     std::clog << "Start server" << std::endl;
     std::clog.flush();
-    Service server(argv[1], argv[2], argv[3], 100);
+    Service server(argv[1], argv[2], argv[3]);
 
     std::thread do_current_context(&Service::update_current_context, &server);
     std::thread do_tasks(&Service::handle_data, &server);
