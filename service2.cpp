@@ -8,10 +8,9 @@
 
 #include <sys/stat.h>
 
-enum ERROR { NOT_FIFO=1, NO_CONTEXT };
+enum ERROR { NOT_FIFO=1 };
 
-class Service
-{
+class Service {
 protected:
     bool _has_current_context;
     std::mutex _mutex;
@@ -20,14 +19,11 @@ protected:
     std::string _out;
     std::string _current_context;
 
-    bool has_current_context()
-    {
-        std::lock_guard<std::mutex> guarded_scope(_mutex);
+    bool has_current_context() const {
         return _has_current_context;
     }
 
-    void has_current_context(bool flag)
-    {
+    void has_current_context(bool flag) {
         std::lock_guard<std::mutex> guarded_scope(_mutex);
         _has_current_context = flag;
     }
@@ -45,16 +41,14 @@ public:
         _out(out)
     {}
 
-    std::string strip(std::string s)
-    {
+    std::string strip(std::string s) const {
         s.erase(std::find_if( s.rbegin(), s.rend(),
                     [](int ch) { return !std::isspace(ch); }
                     ).base(), s.end());
         return s;
     }
 
-    void update_current_context()
-    {
+    void update_current_context() {
         while(true) {
             std::clog << "Wait for context..." << std::endl;
             bool has_error = false;
@@ -74,8 +68,7 @@ public:
         }
     }
 
-    void handle_data()
-    {
+    void handle_data() const {
         while(true) {
             if(this->has_current_context()) {
                 std::string data;
@@ -104,13 +97,12 @@ public:
                     out.close();
                     std::clog << "\tdone" << std::endl;
                 } // if not has_error
-            }
+            } // if has context
         } // while true
     }
 };
 
-bool is_named_pipe_fifo(char* filename)
-{
+bool is_named_pipe_fifo(char* filename) {
     struct stat st;
     stat(filename, &st);
     if(not S_ISFIFO(st.st_mode) ) {
@@ -119,11 +111,11 @@ bool is_named_pipe_fifo(char* filename)
     return true;
 }
 
-int main(int argc, char** argv)
-{
-    assert(argc = 3);
+int main(int argc, char** argv) {
 
-    for(size_t i=1; i < 3; ++i) {
+    assert(argc == 4);
+
+    for(size_t i=1; i < 4; ++i) {
         if( not is_named_pipe_fifo(argv[i]) ) {
             std::cerr << "ERROR: " << argv[i] << " is not a named pipe FIFO" << std::endl;
             exit(ERROR::NOT_FIFO);

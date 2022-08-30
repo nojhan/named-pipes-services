@@ -1,5 +1,6 @@
 
-./service1 data > out &
+# ./service1 data > out &
+./service1 data out &
 PID_SERVICE=$!
 
 echo "Hellow World!" > data &

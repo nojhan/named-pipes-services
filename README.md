@@ -1,32 +1,61 @@
 Named pipes services
 ====================
 
-Examples of how to design services that use Linux' named pipes FIFO as I/O.
+Examples (in C++ and Python) of how to design services that use named pipes FIFO as I/O.
+
+Instead of implementing heavy web services or complex low-level network code,
+just read/write from/to files, and be done with it.
 
 
-Rationale
----------
+Introduction
+------------
+
+### Rationale
+
+The problem of making two programs *communicate* is among the ones
+that generated the largest litterature and code in all computer science
+(along with cache invalidation, naming things, and web frameworks).
+
+When facing such a problem, a programer immediatly thinks "I'll use middleware".
+If you don't really now what a middleware is, be at ease, nobody really knows.
+Nowadays, you may have eared of their latest avatar: *web services*.
+As our programmer is going to realize, one now have *two* problems.
+The burden of writing, using, and maintaining code using middleware is always huge.
+Because they are made to handle a **tremendous** number of complex situations,
+most of which involve adversary users, users being bots, or both.
+
+But most of the time, the actual problem does not really involve these situations.
+At least not at the beginning (which means probably never).
+If you are building up (firsts versions of) communicating programs
+that will run on a (safe) local network,
+and for which the exchanged messages are known,
+then I have good news:
+**you don't have to use web services** (or any kind of middleware).
+
+**You just need to know how to read/write from/to (special) files**.
+
+
+### Overview
 
 The basic idea is that, instead of programming the network interface
 to your service with low level sockets or any high level library,
-you can just implement query/answer mechanisms using named pipes.
+you can just implement query/answer mechanisms using **named pipes**.
 
-Named pipes are special FIFO files that are blocking on I/O
+Named pipes are special *FIFO* files that are blocking on I/O
 and implements a very basic form of message passing,
 without having to bother with polling.
-Moreover, they are very easy to use, are they are just files
+Moreover, they are very easy to use, as they are just files
 in which you read/write.
 
 Once you made your service on top of named pipes,
 it is easy to wrap it within an interface made with other languages/tools.
-For instance, it is very easy to expose it on the network using common Linux tools like `socat`.
+For instance, it is very easy to expose it on the network using common tools like `socat`.
 
 Be warned that this is not secure, though, you should only use this for testing
-purpose in a secure local network.
+purpose in a secured local network.
 
 
-Principle
----------
+### Principle
 
 The theoretical principle can be represented by this UML sequence diagram:
 ```
@@ -48,23 +77,39 @@ The theoretical principle can be represented by this UML sequence diagram:
     │      │       │       │
 ```
 
-Note that the service is started first and is waiting for the input.
-Note also that there are two pipes, here: one for the input and one for the output.
+Notes:
+- the service is started first and is waiting for the input,
+  but as processes are blocking, the starting order does not always matter.
+- there are two pipes, here (one for the input and one for the output),
+  for the sake of simplicity, but you may just as well use only one.
 
 
 Build and run
 -------------
 
+Python code does not need to be built.
+
+To build the C++ code on Linux, just call:
 ```sh
 ./build.sh
+```
+
+You may use the `run_*` scripts to see how to run the examples.
+For instance, for the most complex one:
+```
 ./run_service2.sh
 ```
+
 
 Examples
 --------
 
-To create the named pipes under Linux, use the `mkfifo` command, as shown in the `build.sh`
+To create the named pipes under Linux or MacOS, use the `mkfifo` command, as shown in the `build.sh`
 script.
+
+Creating named pipes on windows is more complex, you may want to look at the
+[related Stack Overflow question](https://stackoverflow.com/questions/3670039/is-it-possible-to-open-a-named-pipe-with-command-line-in-windows)
+
 
 ### Trivial example: a `cat` service
 
@@ -125,6 +170,8 @@ Use `Ctrl-C` to close the remaining `cat` process.
 Furthermore
 -----------
 
+### Expose such services on network
+
 If you want to expose such a service as a network server, just use socat.
 
 For example, to get _data_ query from the network for `service1`:
@@ -151,8 +198,7 @@ socat TCP-LISTEN:8478,reuseaddr,fork PIPE:/./data
 ```
 
 
-Troubleshooting
-===============
+### Troubleshooting
 
 If you witness strange behavior while debugging your own services (like prints
 that do not occur in the correct terminal), double check that yo don't have some
