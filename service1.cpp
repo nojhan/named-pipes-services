@@ -26,9 +26,9 @@ int main(int argc, char** argv)
         ifs.close();
 
         std::string data = strip(datas.str());
+        std::clog << "Received: <" << data << ">" << std::endl;
 
         std::ofstream ofs(argv[2]);
-        std::clog << "Received: <" << data << ">" << std::endl;
         ofs << data << std::endl;
         ofs.close();
 
