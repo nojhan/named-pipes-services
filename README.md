@@ -21,18 +21,24 @@ If you don't really now what a middleware is, be at ease, nobody really knows.
 Nowadays, you may have eared of their latest avatar: *web services*.
 As our programmer is going to realize, one now have *two* problems.
 The burden of writing, using, and maintaining code using middleware is always huge.
-Because they are made to handle a **tremendous** number of complex situations,
-most of which involve adversary users, users being bots, or both.
+Because they are made to handle a **tremendous** number of features and complex situations
+—most of which involve adversary users, users being bots, or both.
 
 But most of the time, the actual problem does not really involve these situations.
-At least not at the beginning (which means probably never).
+At least not at the beginning (… which means probably never).
+People familiar with middleware history would argue that their key feature
+is not just *messages passing* but *remote call*, which involves *object serialization*.
+But most of the time, the messages are pretty simple anyway, and using a middleware
+to implement a serialization of a list of instances having three members of fundamental types
+is not a good use of your time.
+
 If you are building up (firsts versions of) communicating programs
 that will run on a (safe) local network,
-and for which the exchanged messages are known,
+and for which the exchanged messages are known and simple,
 then I have good news:
 **you don't have to use web services** (or any kind of middleware).
 
-**You just need to know how to read/write from/to (special) files**.
+**YOU JUST NEED TO KNOW HOW TO READ/WRITE FROM/TO (SPECIAL) FILES**.
 
 
 ### Overview
