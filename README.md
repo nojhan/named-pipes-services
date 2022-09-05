@@ -32,7 +32,7 @@ But most of the time, the messages are pretty simple anyway, and using a middlew
 to implement a serialization of a list of instances having three members of fundamental types
 is not a good use of your time.
 
-If you are building up (firsts versions of) communicating programs
+If you are building up (firsts versions of) two communicating programs
 that will run on a (safe) local network,
 and for which the exchanged messages are known and simple,
 then I have good news:
@@ -55,7 +55,7 @@ in which you read/write.
 
 Once you made your service on top of named pipes,
 it is easy to wrap it within an interface made with other languages/tools.
-For instance, it is very easy to expose it on the network using common tools like `socat`.
+For instance, it is very easy to expose it on the network using common tools like `socat` (see below).
 
 Be warned that this is not secure, though, you should only use this for testing
 purpose in a secured local network.
@@ -73,13 +73,13 @@ The theoretical principle can be represented by this UML sequence diagram:
     │      │       │       │
     │      │       │┌──────╢
     │      │  block││ wait ║
-    │ask   │       │└─────→║
-    ├─────────────→│       │
-    ╟─────┐│       ├──────→│
+    │ask   │       │└─────>║
+    ├─────────────>│       │
+    ╟─────┐│       ├──────>│
     ║wait ││block  │       ║process
-    ║←────┘│       │       ║
-    │      │←──────────────┤
-    │←─────┤       │   tell│
+    ║<────┘│       │       ║
+    │      │<──────────────┤
+    │<─────┤       │   tell│
     │      │       │       │
 ```
 
@@ -88,6 +88,29 @@ Notes:
   but as processes are blocking, the starting order does not always matter.
 - there are two pipes, here (one for the input and one for the output),
   for the sake of simplicity, but you may just as well use only one.
+
+
+### When NOT to use named pipes
+
+To be completely honest, here are a list of cases that —**if they are all true**—
+may lead you to consider that maybe it would be a good idea
+to think about how you may eventually end up
+looking for a solution that might be something that's close to a middleware:
+
+- ☒ your service takes time to compute something,
+- ☒ you have one service, but an unknown (large) number of clients,
+- ☒ all clients expect the same interface,
+- ☒ which involves answering to the server,
+- ☒ with *complex* data structures,
+- ☒ you absolutely need to serve them all as fast as possible,
+- ☒ over the internet,
+- ☒ and you are *certain* that no one will want *another* middleware in the next project.
+
+I your use case don't match all of this checklist but you still want to
+use a middleware, maybe you should just consider making a side software
+that will expose/transliterate the data going through the named pipe.
+That way, your service stays simple and you can easily
+exchange one middleware for another without even touching it.
 
 
 Build and run
